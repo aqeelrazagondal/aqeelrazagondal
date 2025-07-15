@@ -19,6 +19,11 @@ I'm a **Senior Backend Developer** with 6+ years of experience in building scala
 - [CNBC Arabia Backend](https://github.com/...) – Real-time media publishing backend
 - [Secure EHR System](https://github.com/...) – HIPAA-compliant health records system
 
+## 📊 GitHub Stats
+
+![Aqeel's GitHub Stats](https://github-readme-stats.vercel.app/api?username=aqeelrazagondal&show_icons=true&theme=tokyonight)
+
+
 ## 📫 Contact Me
 📍 Northampton, UK  
 📧 aqeelraza146@gmail.com  

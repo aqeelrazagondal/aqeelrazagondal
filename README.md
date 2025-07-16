@@ -1,9 +1,7 @@
-# Hello there 👋
+# 👋 Hi, I'm Aqeel Raza
 
 ![visitors](https://visitor-badge.laobi.icu/badge?page_id=zhenye-na.zhenye-na)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=102)](https://github.com/ellerbrock/open-source-badge/)
-
-# 👋 Hi, I'm Aqeel Raza
 
 I'm a **Senior Backend Developer** with 6+ years of experience in building scalable, secure, and high-performance applications using **Node.js**, **NestJS**, **AWS**, and **TypeScript**.
 

@@ -21,6 +21,8 @@ I'm a **Senior Backend Developer** with 6+ years of experience in building scala
 - [ChainGPT](https://github.com/...) – AI-integrated platform for secure NLP processing
 - [CNBC Arabia Backend](https://github.com/...) – Real-time media publishing backend
 - [Secure EHR System](https://github.com/...) – HIPAA-compliant health records system
+- [ATS + Talent Talent Acquisition](https://occy.com/) - Reduce recruitment costs by 20%+ with the end-to-end ATS hiring platform in-house recruitment teams love.
+- [PackageX](https://packagex.io/) - Vision-Powered Scanning. Workflow-Driven Logistics.
 
 ## 🔧 Technologies & Tools
 

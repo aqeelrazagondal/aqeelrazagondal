@@ -49,10 +49,10 @@ I'm a Senior Backend Developer focused on scalable, secure, and high‑performan
 
 ## 🧩 Select Case Studies
 
-- ChainGPT – AI-integrated platform for secure NLP processing  
+- [ChainGPT](https://www.chaingpt.org/) – AI-integrated platform for secure NLP processing  
   - Hardened API gateway, request tracing, burst control, and safe job processing with queues
 
-- CNBC Arabia – Real-time media publishing backend  
+- [CNBC Arabia](https://www.cnbcarabia.com/) – Real-time media publishing backend  
   - Built event-driven ingestion + publishing flows with durable queues and cache-first delivery
 
 - Secure EHR System – HIPAA-informed design  
@@ -71,16 +71,6 @@ I'm a Senior Backend Developer focused on scalable, secure, and high‑performan
   - Observability: structured logging with correlation IDs, CloudWatch metrics/alarms, X‑Ray traces across API/Lambda/services  
   - DevSecOps: CodeCommit → CodeBuild → CodeDeploy/CodePipeline with gated stages; SCA (OWASP Dependency‑Check), SAST (SonarQube), DAST (OWASP ZAP), container/IaC scanning (e.g., Trivy/grype, cfn‑nag); SBOM generation, secrets scanning, policy‑as‑code (OPA/Conftest); findings normalized and aggregated in Security Hub; CloudTrail + Config for audit  
   - Delivery: blue/green + manual approval for prod, automated rollbacks on health/regression checks
-
-<details>
-  <summary>Pipeline snapshot (DevSecOps)</summary>
-
-- Source: CodeCommit, branch policies; git hooks + secrets scanning  
-- Build: CodeBuild with parallel SCA/SAST, unit/integration tests, SBOM; artifact signing  
-- Test: Ephemeral environment deploy → DAST (ZAP) → results to Security Hub  
-- Approve/Deploy: Severity thresholds gate promotion → blue/green on ECS/Lambda; canary where applicable  
-- Monitor/Audit: CloudWatch, X‑Ray, GuardDuty, Security Hub; CloudTrail and Config rules enforce best practices
-</details>
 
 ---
 
@@ -128,12 +118,13 @@ Badges:
 
 ## 🗂️ Featured Projects
 
-- ChainGPT – AI-integrated platform for secure NLP processing  
-- CNBC Arabia Backend – Real-time media publishing backend  
+- [ChainGPT](https://www.chaingpt.org/) – AI-integrated platform for secure NLP processing  
+- [CNBC Arabia Backend](https://www.cnbcarabia.com/) – Real-time media publishing backend  
 - Secure EHR System – Privacy-first records with audit-ready flows  
 - Election Management System – Secure, scalable voter & results services (AWS + DevSecOps)  
 - ATS + Talent Acquisition – https://occy.com/  
 - PackageX – https://packagex.io/
+
 
 Tip: Some repositories are private or client-owned. I’m happy to walk through architecture and anonymized code samples upon request.
 

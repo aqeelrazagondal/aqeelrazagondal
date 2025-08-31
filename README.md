@@ -169,8 +169,8 @@ Tip: Some repositories are private or client-owned. I’m happy to walk through 
 ## 📮 Contact
 
 - 📍 Northampton, UK  
-- ✉ Email: <your-email>  
-- 📞 Phone: <your-phone>  
+- ✉ Email: aqeelraza146@gmail.com
+- 📞 Phone: +44 07918-776326 
 - 🔗 LinkedIn: https://www.linkedin.com/in/aqeel-raza-5b64887b/  
 - 💻 GitHub: https://github.com/aqeelrazagondal
 

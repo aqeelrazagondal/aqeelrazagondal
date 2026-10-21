@@ -42,23 +42,7 @@
 
 ### 🧭 Reference Architecture I Typically Deliver
 
-```mermaid
-flowchart LR
-    C[Web / Mobile Clients] --> CF[CloudFront + WAF]
-    CF --> APIGW[API Gateway]
-    APIGW --> AUTH[Cognito / OAuth2 JWT]
-    APIGW --> SVC[NestJS Services<br/>ECS Fargate]
-    APIGW --> FN[Lambda Functions]
-    SVC --> PG[(Aurora PostgreSQL<br/>+ pgvector)]
-    SVC --> RD[(ElastiCache Redis)]
-    SVC -- outbox --> BUS{{Kafka / SNS / EventBridge}}
-    BUS --> Q[SQS + DLQ]
-    Q --> WK[Async Workers<br/>Lambda / BullMQ]
-    WK --> DDB[(DynamoDB)]
-    WK --> S3[(S3 Data Lake)]
-    S3 --> CH[(ClickHouse Analytics)]
-    SVC & FN & WK -.-> OBS[CloudWatch · X-Ray · Prometheus · Grafana]
-```
+<p align="center"><a href="assets/architecture/00-reference-architecture.png"><img src="assets/architecture/00-reference-architecture.png" alt="Reference architecture: CloudFront, API Gateway, ECS Fargate, Lambda, Aurora, ElastiCache, Kafka/EventBridge/SNS, SQS workers, DynamoDB, S3 and ClickHouse" width="100%" /></a></p>
 
 **Principles I hold to:** idempotent writes · retries with backoff and jitter · circuit breakers · outbox for consistency · least-privilege IAM · everything in IaC · observability from day one · design for cost.
 
@@ -66,52 +50,14 @@ flowchart LR
 
 ### 🔐 DevSecOps & Production Architectures on AWS (2026)
 
-Four blueprints I use when designing secure platforms on AWS. The numbers in each diagram match the step tables underneath.
+Four blueprints I use when designing secure platforms on AWS, drawn with the official AWS Architecture Icons. The numbers in each diagram match the step tables underneath. Click a diagram to open it full size.
 They update the classic [2021 AWS DevSecOps pipeline](https://aws.amazon.com/blogs/devops/building-end-to-end-aws-devsecops-ci-cd-pipeline-with-open-source-sca-sast-and-dast-tools/) for 2026: GitHub + CodeConnections replaces CodeCommit, Amazon Inspector code security replaces CodeGuru Security (retired Nov 2025), images are signed, and Security Hub correlates findings natively instead of through a custom Lambda.
 
 <details open>
 <summary><b>1 · Secure CI/CD pipeline: from pull request to production</b></summary>
 <br/>
 
-```mermaid
-flowchart TB
-    subgraph SRC["SOURCE"]
-        DEV["Developer opens PR"] --> GH["① GitHub repo<br/>branch protection · signed commits · CODEOWNERS"]
-        GH -. "on every PR" .-> PRS["② PR checks<br/>Inspector code security: SAST · SCA · IaC<br/>Amazon Q Developer code review"]
-    end
-
-    GH -->|"③ merge to main<br/>CodeConnections · no stored keys"| CP["CodePipeline V2"]
-
-    subgraph GATES["④ BUILD GATES · CodeBuild · run in parallel · any fail = stop"]
-        G1["Secrets scan<br/>gitleaks"]
-        G2["SAST + SCA<br/>Inspector · Semgrep"]
-        G3["IaC scan<br/>Checkov on terraform plan"]
-        G4["IAM policy check<br/>Access Analyzer<br/>check-no-new-access"]
-        G5["Unit + contract tests"]
-    end
-    CP --> G1 & G2 & G3 & G4 & G5
-
-    subgraph SUPPLY["SUPPLY CHAIN"]
-        IMG["⑤ Build image<br/>distroless · non-root<br/>+ SBOM (Inspector sbomgen)"] --> ECR[("⑥ Amazon ECR<br/>immutable tags · KMS<br/>Inspector scan: block on CRITICAL")]
-        ECR --> SIGN["⑦ Sign image<br/>AWS Signer + Notation"]
-    end
-    G1 & G2 & G3 & G4 & G5 -->|"all pass"| IMG
-
-    subgraph STAGE["STAGING ACCOUNT"]
-        STG["⑧ Deploy to staging<br/>Terraform · ECS Fargate"] --> DAST["⑨ DAST + tests<br/>ZAP API scan · integration · smoke load"]
-    end
-    SIGN --> STG
-
-    subgraph PROD["PRODUCTION ACCOUNT"]
-        APR{"⑩ Manual approval<br/>linked change record"} --> DEP["⑪ Verify signature →<br/>ECS blue/green deploy<br/>auto-rollback on CloudWatch alarms"]
-    end
-    DAST --> APR
-
-    subgraph FIND["FINDINGS"]
-        SH["⑫ Security Hub<br/>one view, deduplicated"] --> EB["EventBridge"] --> OUT["Slack / Teams · Jira ticket<br/>reports archived in S3 Object Lock"]
-    end
-    PRS & G2 & G3 & ECR & DAST -. "findings" .-> SH
-```
+<p align="center"><a href="assets/architecture/01-devsecops-pipeline.png"><img src="assets/architecture/01-devsecops-pipeline.png" alt="Secure CI/CD pipeline on AWS from GitHub pull request to ECS blue/green production deploy" width="100%" /></a></p>
 
 | # | What happens | Why it matters | Where (service / tool) |
 |---|---|---|---|
@@ -134,40 +80,7 @@ flowchart TB
 <summary><b>2 · Multi-account landing zone and governance</b></summary>
 <br/>
 
-```mermaid
-flowchart TB
-    IDP["Corporate IdP<br/>Entra ID / Okta"] -->|"SAML + SCIM"| IIC
-
-    subgraph MGMT["① MANAGEMENT ACCOUNT · billing and org only, no workloads"]
-        ORG["AWS Organizations<br/>+ Control Tower"]
-        IIC["② IAM Identity Center<br/>MFA · short-lived role sessions"]
-        POL["③ Preventive guardrails<br/>SCPs · RCPs · declarative policies"]
-    end
-
-    subgraph SECOU["SECURITY OU"]
-        TOOL["④ Security Tooling account<br/>delegated admin for Security Hub · GuardDuty<br/>Inspector · Macie · Detective · Access Analyzer"]
-        LOG["⑤ Log Archive account<br/>org CloudTrail · Config · VPC Flow Logs<br/>S3 Object Lock + Security Lake"]
-    end
-
-    subgraph INFOU["INFRASTRUCTURE OU"]
-        NET["⑥ Network account<br/>Transit Gateway · Network Firewall<br/>DNS Firewall · central egress"]
-        CICD["⑦ CI/CD account<br/>CodePipeline · ECR · Signer"]
-    end
-
-    subgraph WLOU["WORKLOADS OU · one account per environment"]
-        direction LR
-        DEVA["Dev"] ~~~ STGA["Staging"] ~~~ PRDA["Production"]
-    end
-
-    SBX["⑧ Sandbox OU<br/>budget-capped · auto-cleaned"]
-
-    POL -. "applies to every account" .-> WLOU
-    POL -.-> INFOU & SBX
-    IIC -. "people get temporary roles" .-> WLOU
-    CICD -->|"deploys through narrow<br/>per-account roles"| WLOU
-    NET <-->|"TGW attachments"| WLOU
-    WLOU ==>|"every account ships logs + findings"| SECOU
-```
+<p align="center"><a href="assets/architecture/02-landing-zone.png"><img src="assets/architecture/02-landing-zone.png" alt="Multi-account AWS landing zone with Organizations, Control Tower, Identity Center and security, infrastructure, workload and sandbox OUs" width="100%" /></a></p>
 
 | # | What happens | Why it matters | Where (service / tool) |
 |---|---|---|---|
@@ -186,40 +99,7 @@ flowchart TB
 <summary><b>3 · Production runtime: defence in depth from edge to data</b></summary>
 <br/>
 
-```mermaid
-flowchart TB
-    U["Users · mobile apps · partners"] --> R53["① Route 53<br/>DNSSEC · health-check failover"]
-    R53 --> CF["② CloudFront<br/>TLS 1.3 · AWS WAF managed rules + Bot Control<br/>Shield Advanced"]
-    CF -->|"③ VPC origin: ALB has no public IP"| ALB
-
-    subgraph VPC["PRODUCTION VPC · 3 Availability Zones"]
-        subgraph APP["④ PRIVATE APP SUBNETS"]
-            ALB["Internal ALB"] --> SVC["ECS Fargate services<br/>NestJS · non-root · read-only filesystem"]
-            SVC -->|"jobs"| SQS["SQS + DLQ"] --> WRK["Workers<br/>Lambda / Fargate"]
-        end
-        subgraph DATA["⑤ ISOLATED DATA SUBNETS · no internet route"]
-            AUR[("Aurora PostgreSQL<br/>IAM auth · RLS · KMS")]
-            VAL[("ElastiCache Valkey<br/>TLS + AUTH")]
-        end
-        VPCE["⑥ VPC endpoints<br/>S3 · DynamoDB · Secrets Manager · KMS · ECR"]
-        EGR["⑦ Egress via Network Firewall<br/>domain allow-list only"]
-    end
-
-    SVC --> AUR & VAL
-    SVC & WRK --> VPCE
-    VPCE --> AWSS[("S3 · DynamoDB<br/>PITR · KMS")]
-    SVC --> EGR --> EXT["Approved third-party APIs"]
-
-    subgraph CTRL["SHARED CONTROLS · protect + observe every layer above"]
-        direction LR
-        SM["⑧ Secrets Manager + KMS<br/>auto-rotated secrets<br/>one key per data class"]
-        ENG["⑨ Engineer access<br/>Verified Access · ECS Exec via SSM<br/>no SSH · no bastion · sessions logged"]
-        GD["⑩ GuardDuty Runtime Monitoring<br/>crypto-miners · reverse shells"]
-        OBS["⑪ CloudWatch Application Signals<br/>X-Ray / OpenTelemetry · SLO alarms"]
-        SM ~~~ ENG ~~~ GD ~~~ OBS
-    end
-    AWSS ~~~ CTRL
-```
+<p align="center"><a href="assets/architecture/03-production-runtime.png"><img src="assets/architecture/03-production-runtime.png" alt="Production runtime defence in depth from Route 53 and CloudFront through private VPC subnets to isolated data" width="100%" /></a></p>
 
 | # | What happens | Why it matters | Where (service / tool) |
 |---|---|---|---|
@@ -241,31 +121,7 @@ flowchart TB
 <summary><b>4 · Threat detection and automated incident response</b></summary>
 <br/>
 
-```mermaid
-flowchart TB
-    SIG["① SIGNALS from every account<br/>CloudTrail · VPC Flow Logs · DNS query logs<br/>EKS audit logs · ECS / EKS / EC2 runtime agent · S3 data events"]
-
-    subgraph DET["② DETECTION · managed detectors"]
-        direction LR
-        GD["GuardDuty<br/>Extended Threat Detection"] ~~~ INS["Inspector<br/>CVEs in code, images, Lambda"] ~~~ MAC["Macie<br/>sensitive data in S3"] ~~~ CFG["AWS Config<br/>drift + conformance packs"] ~~~ AA["IAM Access Analyzer<br/>public + unused access"]
-    end
-
-    SIG --> DET
-    SIG --> LAKE[("⑧ Security Lake · OCSF<br/>Athena · OpenSearch · SIEM")]
-    DET --> SH["③ Security Hub<br/>correlated exposure findings<br/>one severity, one queue"]
-    SH --> EB["④ EventBridge<br/>route by severity + resource"]
-
-    subgraph SOAR["⑤ AUTOMATED PLAYBOOKS · Step Functions · seconds, not hours"]
-        direction LR
-        P1["Isolate workload<br/>quarantine SG + forensic snapshot"] ~~~ P2["Revoke IAM sessions<br/>disable access keys"] ~~~ P3["Lock down S3<br/>block public access"] ~~~ P4["Block attacker IP<br/>WAF IP set"]
-    end
-
-    EB -->|"known pattern"| SOAR
-    EB -->|"needs a human"| CHAT["⑥ On-call alert<br/>Amazon Q Developer in Slack / Teams<br/>PagerDuty"]
-    CHAT --> INV["⑦ Investigate<br/>Detective graph →<br/>AWS Security Incident Response"]
-    SOAR --> INV
-    INV --> PM["⑨ Post-incident<br/>new SCP · Config rule · pipeline gate<br/>↺ feeds back into ② so it can't happen twice"]
-```
+<p align="center"><a href="assets/architecture/04-detect-respond.png"><img src="assets/architecture/04-detect-respond.png" alt="Threat detection and automated incident response with GuardDuty, Security Hub, EventBridge and Step Functions" width="100%" /></a></p>
 
 | # | What happens | Why it matters | Where (service / tool) |
 |---|---|---|---|

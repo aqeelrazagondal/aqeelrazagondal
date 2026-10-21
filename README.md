@@ -64,6 +64,225 @@ flowchart LR
 
 ---
 
+### 🔐 DevSecOps & Production Architectures on AWS (2026)
+
+Four blueprints I use when designing secure platforms on AWS. The numbers in each diagram match the step tables underneath.
+They update the classic [2021 AWS DevSecOps pipeline](https://aws.amazon.com/blogs/devops/building-end-to-end-aws-devsecops-ci-cd-pipeline-with-open-source-sca-sast-and-dast-tools/) for 2026: GitHub + CodeConnections replaces CodeCommit, Amazon Inspector code security replaces CodeGuru Security (retired Nov 2025), images are signed, and Security Hub correlates findings natively instead of through a custom Lambda.
+
+<details open>
+<summary><b>1 · Secure CI/CD pipeline: from pull request to production</b></summary>
+<br/>
+
+```mermaid
+flowchart TB
+    subgraph SRC["SOURCE"]
+        DEV["Developer opens PR"] --> GH["① GitHub repo<br/>branch protection · signed commits · CODEOWNERS"]
+        GH -. "on every PR" .-> PRS["② PR checks<br/>Inspector code security: SAST · SCA · IaC<br/>Amazon Q Developer code review"]
+    end
+
+    GH -->|"③ merge to main<br/>CodeConnections · no stored keys"| CP["CodePipeline V2"]
+
+    subgraph GATES["④ BUILD GATES · CodeBuild · run in parallel · any fail = stop"]
+        G1["Secrets scan<br/>gitleaks"]
+        G2["SAST + SCA<br/>Inspector · Semgrep"]
+        G3["IaC scan<br/>Checkov on terraform plan"]
+        G4["IAM policy check<br/>Access Analyzer<br/>check-no-new-access"]
+        G5["Unit + contract tests"]
+    end
+    CP --> G1 & G2 & G3 & G4 & G5
+
+    subgraph SUPPLY["SUPPLY CHAIN"]
+        IMG["⑤ Build image<br/>distroless · non-root<br/>+ SBOM (Inspector sbomgen)"] --> ECR[("⑥ Amazon ECR<br/>immutable tags · KMS<br/>Inspector scan: block on CRITICAL")]
+        ECR --> SIGN["⑦ Sign image<br/>AWS Signer + Notation"]
+    end
+    G1 & G2 & G3 & G4 & G5 -->|"all pass"| IMG
+
+    subgraph STAGE["STAGING ACCOUNT"]
+        STG["⑧ Deploy to staging<br/>Terraform · ECS Fargate"] --> DAST["⑨ DAST + tests<br/>ZAP API scan · integration · smoke load"]
+    end
+    SIGN --> STG
+
+    subgraph PROD["PRODUCTION ACCOUNT"]
+        APR{"⑩ Manual approval<br/>linked change record"} --> DEP["⑪ Verify signature →<br/>ECS blue/green deploy<br/>auto-rollback on CloudWatch alarms"]
+    end
+    DAST --> APR
+
+    subgraph FIND["FINDINGS"]
+        SH["⑫ Security Hub<br/>one view, deduplicated"] --> EB["EventBridge"] --> OUT["Slack / Teams · Jira ticket<br/>reports archived in S3 Object Lock"]
+    end
+    PRS & G2 & G3 & ECR & DAST -. "findings" .-> SH
+```
+
+| # | What happens | Why it matters | Where (service / tool) |
+|---|---|---|---|
+| ① | Code reaches a protected branch only through a reviewed, signed PR | Nobody can push straight to production code; every change is traceable to a person | GitHub branch rules, CODEOWNERS, commit signing |
+| ② | Code, dependencies and IaC are scanned while the PR is open | Developers fix issues before merge, when they are cheapest | Amazon Inspector code security, Amazon Q Developer |
+| ③ | Merge triggers the pipeline over a managed connection | No long-lived Git or AWS keys sitting in CI | AWS CodeConnections → CodePipeline V2 |
+| ④ | Five security and quality gates run in parallel; one failure stops the release | Fast feedback, and nothing unscanned can reach a build | CodeBuild + gitleaks, Inspector/Semgrep, Checkov, IAM Access Analyzer, Jest |
+| ⑤ | A minimal, non-root image is built together with its SBOM | Smaller attack surface; the SBOM lets you answer "are we affected by CVE-X?" in minutes | Docker distroless, Inspector SBOM Generator |
+| ⑥ | The image is stored with immutable tags and scanned; CRITICAL CVEs block the release | The image that was tested is the image that ships | Amazon ECR + Inspector enhanced scanning, KMS |
+| ⑦ | The image is cryptographically signed | Proves the artifact came from this pipeline and was not tampered with | AWS Signer (Notation) |
+| ⑧ | Infrastructure and app deploy to an isolated staging account | Production-like test without production blast radius | Terraform, ECS Fargate, cross-account deploy role |
+| ⑨ | The running app is attacked like a real user would (DAST) and integration tests run | Catches runtime issues static scans miss: auth gaps, headers, injection | ZAP, CodeBuild |
+| ⑩ | A human approves, with a linked change record | Accountability and an audit trail for regulated releases | CodePipeline manual approval |
+| ⑪ | The signature is verified, then traffic shifts blue → green with automatic rollback | Zero-downtime release; bad deploys revert without anyone paging in | ECS native blue/green, CloudWatch alarms |
+| ⑫ | All findings land in one place and route to the owning team | One backlog of risk instead of five tool dashboards | AWS Security Hub, EventBridge, Jira, S3 Object Lock |
+
+</details>
+
+<details>
+<summary><b>2 · Multi-account landing zone and governance</b></summary>
+<br/>
+
+```mermaid
+flowchart TB
+    IDP["Corporate IdP<br/>Entra ID / Okta"] -->|"SAML + SCIM"| IIC
+
+    subgraph MGMT["① MANAGEMENT ACCOUNT · billing and org only, no workloads"]
+        ORG["AWS Organizations<br/>+ Control Tower"]
+        IIC["② IAM Identity Center<br/>MFA · short-lived role sessions"]
+        POL["③ Preventive guardrails<br/>SCPs · RCPs · declarative policies"]
+    end
+
+    subgraph SECOU["SECURITY OU"]
+        TOOL["④ Security Tooling account<br/>delegated admin for Security Hub · GuardDuty<br/>Inspector · Macie · Detective · Access Analyzer"]
+        LOG["⑤ Log Archive account<br/>org CloudTrail · Config · VPC Flow Logs<br/>S3 Object Lock + Security Lake"]
+    end
+
+    subgraph INFOU["INFRASTRUCTURE OU"]
+        NET["⑥ Network account<br/>Transit Gateway · Network Firewall<br/>DNS Firewall · central egress"]
+        CICD["⑦ CI/CD account<br/>CodePipeline · ECR · Signer"]
+    end
+
+    subgraph WLOU["WORKLOADS OU · one account per environment"]
+        direction LR
+        DEVA["Dev"] ~~~ STGA["Staging"] ~~~ PRDA["Production"]
+    end
+
+    SBX["⑧ Sandbox OU<br/>budget-capped · auto-cleaned"]
+
+    POL -. "applies to every account" .-> WLOU
+    POL -.-> INFOU & SBX
+    IIC -. "people get temporary roles" .-> WLOU
+    CICD -->|"deploys through narrow<br/>per-account roles"| WLOU
+    NET <-->|"TGW attachments"| WLOU
+    WLOU ==>|"every account ships logs + findings"| SECOU
+```
+
+| # | What happens | Why it matters | Where (service / tool) |
+|---|---|---|---|
+| ① | The management account owns only the organisation and billing | If it holds no workloads, a compromised app can never reach org-level control | AWS Organizations, Control Tower |
+| ② | Everyone signs in through the company IdP and gets temporary, role-based access | No IAM users or long-lived keys; leavers lose access the moment HR disables them | IAM Identity Center, Entra ID / Okta |
+| ③ | Org-wide rules stop the dangerous actions (leaving the org, disabling logs, public S3, unapproved regions) | Guardrails hold even when an admin makes a mistake | SCPs, Resource Control Policies, declarative policies |
+| ④ | One account runs every security service for the whole organisation | Security has a single view; workload teams can't switch the tools off | Security Hub, GuardDuty, Inspector, Macie, Detective, Access Analyzer |
+| ⑤ | All audit logs flow into a locked, write-once account | Attackers can't erase their tracks; evidence is ready for audits and forensics | CloudTrail org trail, AWS Config, S3 Object Lock, Security Lake |
+| ⑥ | All traffic between VPCs and out to the internet passes through central inspection | One place to allow-list egress and block data exfiltration | Transit Gateway, AWS Network Firewall, Route 53 Resolver DNS Firewall |
+| ⑦ | Pipelines live in their own account and deploy through narrow per-account roles | CI compromise can't touch prod data; deploys are the only path in | CodePipeline, ECR, AWS Signer, cross-account IAM roles |
+| ⑧ | Experiments run in throwaway accounts with spend limits | Teams can innovate without risking production or the budget | AWS Budgets actions, automated cleanup |
+
+</details>
+
+<details>
+<summary><b>3 · Production runtime: defence in depth from edge to data</b></summary>
+<br/>
+
+```mermaid
+flowchart TB
+    U["Users · mobile apps · partners"] --> R53["① Route 53<br/>DNSSEC · health-check failover"]
+    R53 --> CF["② CloudFront<br/>TLS 1.3 · AWS WAF managed rules + Bot Control<br/>Shield Advanced"]
+    CF -->|"③ VPC origin: ALB has no public IP"| ALB
+
+    subgraph VPC["PRODUCTION VPC · 3 Availability Zones"]
+        subgraph APP["④ PRIVATE APP SUBNETS"]
+            ALB["Internal ALB"] --> SVC["ECS Fargate services<br/>NestJS · non-root · read-only filesystem"]
+            SVC -->|"jobs"| SQS["SQS + DLQ"] --> WRK["Workers<br/>Lambda / Fargate"]
+        end
+        subgraph DATA["⑤ ISOLATED DATA SUBNETS · no internet route"]
+            AUR[("Aurora PostgreSQL<br/>IAM auth · RLS · KMS")]
+            VAL[("ElastiCache Valkey<br/>TLS + AUTH")]
+        end
+        VPCE["⑥ VPC endpoints<br/>S3 · DynamoDB · Secrets Manager · KMS · ECR"]
+        EGR["⑦ Egress via Network Firewall<br/>domain allow-list only"]
+    end
+
+    SVC --> AUR & VAL
+    SVC & WRK --> VPCE
+    VPCE --> AWSS[("S3 · DynamoDB<br/>PITR · KMS")]
+    SVC --> EGR --> EXT["Approved third-party APIs"]
+
+    subgraph CTRL["SHARED CONTROLS · protect + observe every layer above"]
+        direction LR
+        SM["⑧ Secrets Manager + KMS<br/>auto-rotated secrets<br/>one key per data class"]
+        ENG["⑨ Engineer access<br/>Verified Access · ECS Exec via SSM<br/>no SSH · no bastion · sessions logged"]
+        GD["⑩ GuardDuty Runtime Monitoring<br/>crypto-miners · reverse shells"]
+        OBS["⑪ CloudWatch Application Signals<br/>X-Ray / OpenTelemetry · SLO alarms"]
+        SM ~~~ ENG ~~~ GD ~~~ OBS
+    end
+    AWSS ~~~ CTRL
+```
+
+| # | What happens | Why it matters | Where (service / tool) |
+|---|---|---|---|
+| ① | DNS is signed and fails over automatically between healthy endpoints | Stops DNS spoofing and keeps the service up during a regional issue | Route 53, DNSSEC, health checks |
+| ② | Every request is terminated and filtered at the edge | OWASP attacks, bots and DDoS are stopped before they reach your VPC | CloudFront, AWS WAF, Shield Advanced |
+| ③ | CloudFront reaches the load balancer privately | The app has no public entry point that could bypass WAF | CloudFront VPC origins, internal ALB |
+| ④ | Containers run in private subnets as non-root with a read-only filesystem; slow work goes through queues | Smaller blast radius if code is exploited; spikes are absorbed without dropping requests | ECS Fargate, SQS with DLQ, Lambda |
+| ⑤ | Databases sit in subnets with no internet route and enforce tenant isolation in the DB itself | Even a compromised app server can't exfiltrate directly or read other tenants' rows | Aurora PostgreSQL (IAM auth, Row-Level Security), ElastiCache Valkey |
+| ⑥ | AWS APIs are reached over private endpoints | Traffic to S3, KMS and Secrets Manager never crosses the internet | VPC interface and gateway endpoints |
+| ⑦ | Outbound internet goes only to an allow-listed set of domains | Blocks command-and-control callbacks and data exfiltration | AWS Network Firewall |
+| ⑧ | Credentials are fetched at runtime and rotate on their own; data is encrypted with separate keys | No secrets in code or env files; a leaked key is short-lived and scoped | Secrets Manager, AWS KMS |
+| ⑨ | Human access goes through identity-aware, logged sessions | No open SSH ports or shared bastion keys; every command is auditable | AWS Verified Access, SSM Session Manager / ECS Exec |
+| ⑩ | Container behaviour is monitored for crypto-miners, reverse shells and privilege escalation | Detects attacks that got past every preventive control | GuardDuty Runtime Monitoring |
+| ⑪ | Every request is traced and measured against SLOs | Security and reliability issues show up as anomalies quickly | CloudWatch Application Signals, X-Ray, OpenTelemetry |
+
+</details>
+
+<details>
+<summary><b>4 · Threat detection and automated incident response</b></summary>
+<br/>
+
+```mermaid
+flowchart TB
+    SIG["① SIGNALS from every account<br/>CloudTrail · VPC Flow Logs · DNS query logs<br/>EKS audit logs · ECS / EKS / EC2 runtime agent · S3 data events"]
+
+    subgraph DET["② DETECTION · managed detectors"]
+        direction LR
+        GD["GuardDuty<br/>Extended Threat Detection"] ~~~ INS["Inspector<br/>CVEs in code, images, Lambda"] ~~~ MAC["Macie<br/>sensitive data in S3"] ~~~ CFG["AWS Config<br/>drift + conformance packs"] ~~~ AA["IAM Access Analyzer<br/>public + unused access"]
+    end
+
+    SIG --> DET
+    SIG --> LAKE[("⑧ Security Lake · OCSF<br/>Athena · OpenSearch · SIEM")]
+    DET --> SH["③ Security Hub<br/>correlated exposure findings<br/>one severity, one queue"]
+    SH --> EB["④ EventBridge<br/>route by severity + resource"]
+
+    subgraph SOAR["⑤ AUTOMATED PLAYBOOKS · Step Functions · seconds, not hours"]
+        direction LR
+        P1["Isolate workload<br/>quarantine SG + forensic snapshot"] ~~~ P2["Revoke IAM sessions<br/>disable access keys"] ~~~ P3["Lock down S3<br/>block public access"] ~~~ P4["Block attacker IP<br/>WAF IP set"]
+    end
+
+    EB -->|"known pattern"| SOAR
+    EB -->|"needs a human"| CHAT["⑥ On-call alert<br/>Amazon Q Developer in Slack / Teams<br/>PagerDuty"]
+    CHAT --> INV["⑦ Investigate<br/>Detective graph →<br/>AWS Security Incident Response"]
+    SOAR --> INV
+    INV --> PM["⑨ Post-incident<br/>new SCP · Config rule · pipeline gate<br/>↺ feeds back into ② so it can't happen twice"]
+```
+
+| # | What happens | Why it matters | Where (service / tool) |
+|---|---|---|---|
+| ① | API calls, network flows, DNS lookups, Kubernetes audit logs and container runtime events are collected from every account | You can't detect what you don't log | CloudTrail, VPC Flow Logs, Route 53 Resolver logs, EKS audit logs, GuardDuty runtime agent (ECS · EKS · EC2), S3 data events |
+| ② | Managed detectors look for threats, vulnerabilities, exposed data, misconfiguration and over-permissive access | Covers attackers, weaknesses and mistakes, not just one of them | GuardDuty, Inspector, Macie, AWS Config, IAM Access Analyzer |
+| ③ | Findings are deduplicated and correlated into attack paths with a single severity | Teams fix the 5 issues that form a real exposure, not 500 isolated alerts | AWS Security Hub (exposure findings) |
+| ④ | Each finding is routed by severity and resource type | The right automation or team gets it within seconds | Amazon EventBridge |
+| ⑤ | Known attack patterns are contained automatically | Containment in seconds instead of hours, even at 3 a.m. | AWS Step Functions, Lambda, Security Groups, IAM, S3 Block Public Access, AWS WAF |
+| ⑥ | Humans are paged with context and one-click actions in chat | Faster triage without logging into five consoles | Amazon Q Developer in chat applications, PagerDuty |
+| ⑦ | Analysts trace the blast radius and can escalate to AWS responders | Root cause and scope are found from linked evidence, not guesswork | Amazon Detective, AWS Security Incident Response |
+| ⑧ | All security data is normalised and kept long-term | Threat hunting, compliance evidence and SIEM integration from one open format | Amazon Security Lake (OCSF), Athena, OpenSearch |
+| ⑨ | Every incident ends with a new preventive control | The same attack can't succeed twice; security gets stronger over time | SCPs, AWS Config rules, new CI/CD gates |
+
+</details>
+
+---
+
 ### 💼 Experience
 
 **Exagic** · *Senior Backend Developer / Backend Lead* · Jan 2024 – Present · Remote

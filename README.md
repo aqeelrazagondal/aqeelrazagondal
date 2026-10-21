@@ -166,8 +166,3 @@ flowchart LR
 
 Senior Backend, Lead Engineer, Solutions Architect and Cloud Architect roles, in the UK or remote.
 Happy to talk about **AWS architecture, event-driven design, platform modernisation and production RAG systems**.
-
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=aqeelrazagondal&show_icons=true&hide_border=true&theme=github_dark&count_private=true" height="160" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=aqeelrazagondal&layout=compact&hide_border=true&theme=github_dark" height="160" />
-</p>

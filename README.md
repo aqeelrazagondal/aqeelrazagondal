@@ -1,170 +1,173 @@
-# 👋 Hi, I'm Aqeel Raza
+<h1 align="center">Aqeel Raza</h1>
+<h3 align="center">Senior Backend Engineer · Solutions Architect · AWS Cloud</h3>
 
-![Visitors](https://visitor-badge.laobi.icu/badge?page_id=aqeelrazagondal.aqeelrazagondal)
-[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=102)](https://github.com/ellerbrock/open-source-badge/)
-[![Profile Views](https://komarev.com/ghpvc/?username=aqeelrazagondal&color=0e75b6&style=flat)](https://github.com/aqeelrazagondal)
+<p align="center">
+  I design, build and run cloud-native distributed systems on AWS: event-driven microservices,
+  serverless platforms, high-throughput data pipelines and AI retrieval services.
+</p>
 
-I'm a Senior Backend Developer focused on scalable, secure, and high‑performance systems with Node.js, NestJS, TypeScript, and AWS. I design cloud-native backends, decompose monoliths, and ship reliable distributed services.
-
-- 🔭 Open to backend roles (UK/EU-friendly, remote or hybrid)
-- 🌱 Deepening expertise in cloud architecture and distributed systems
-- 🛠️ Building and contributing to open-source, infra tooling, and backend templates
-- 💬 Ask me about Node.js, microservices, AWS, event-driven design, and observability
-
----
-
-## 🔎 What I Do (at a glance)
-
-- Microservices and serverless backends on AWS (Lambda, ECS Fargate)  
-- Event-driven systems with Kafka/SNS/SQS  
-- API platforms (REST + GraphQL), auth with Cognito/JWT  
-- Performance tuning, caching (Redis), and cost-aware cloud design  
-- CI/CD pipelines with GitHub Actions/CodeDeploy, blue/green, and canary releases  
-- Observability with CloudWatch/X-Ray/log correlation
+<p align="center">
+  <a href="https://www.linkedin.com/in/aqeel-raza-5b64887b/"><img src="https://img.shields.io/badge/LinkedIn-Aqeel%20Raza-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" /></a>
+  <a href="mailto:aqeelraza146@gmail.com"><img src="https://img.shields.io/badge/Email-aqeelraza146%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white" /></a>
+  <img src="https://img.shields.io/badge/Based%20in-Northampton%2C%20UK-1f2937?style=for-the-badge" />
+</p>
 
 ---
 
-## 🧠 Core Competencies
+### About
 
-- Languages/Frameworks: Node.js, TypeScript, NestJS, Express, Koa, Python  
-- Cloud: AWS (Lambda, EC2, S3, Cognito, CloudWatch, SES, SNS, SQS, VPC, IAM)  
-- Data: PostgreSQL, MySQL, MongoDB, DynamoDB, Redis, ClickHouse  
-- Architecture: Microservices, Serverless, EDA, CQRS-lite, Monorepos (Nx)  
-- Messaging: Kafka, SQS/SNS  
-- Testing/Quality: Jest, Mocha, Jasmine, Supertest, eslint + prettier  
-- DevOps: Docker, GitHub Actions, CodeDeploy, IaC-lite, blue/green  
-- Tooling: WebStorm, VS Code, GitHub/GitLab
+- **7+ years** building production backends, with the last 4+ years in senior and lead roles
+- I own the architecture end to end: domain modelling, service boundaries, data design, cloud topology, CI/CD, observability and cost
+- I've led backend teams of 4–6 engineers across 6+ client platforms in healthcare, fintech/Web3, media, logistics, government and HR tech
+- I've moved monoliths to **event-driven microservices (CQRS, Saga, DDD)**, which cut infrastructure cost by **25%**
+- Recently I've been building **production RAG systems**: embeddings, pgvector HNSW retrieval and Cohere reranking
+- Currently preparing for **AWS Certified Solutions Architect – Associate (SAA-C03)**
 
 ---
 
-## 📌 Impact Highlights
+### ☁️ Cloud & Architecture Focus
 
-- 30% faster deployments via robust CI/CD pipelines on AWS (Artifacts, staged rollouts)  
-- 35% latency improvement on a municipal services backend (query/caching/profile-driven tuning)  
-- 40% maintenance time reduction by splitting monoliths into focused services and adopting Nx  
-- 25% infra cost savings by moving suitable workloads to Lambda + SQS fan-out  
-- Production-grade observability: actionable logs/metrics/traces with CloudWatch + X-Ray
-
----
-
-## 🧩 Select Case Studies
-
-- [ChainGPT](https://www.chaingpt.org/) – AI-integrated platform for secure NLP processing  
-  - Hardened API gateway, request tracing, burst control, and safe job processing with queues
-
-- [CNBC Arabia](https://www.cnbcarabia.com/) – Real-time media publishing backend  
-  - Built event-driven ingestion + publishing flows with durable queues and cache-first delivery
-
-- Secure EHR System – HIPAA-informed design  
-  - Role-based access, audit trails, and encrypted-at-rest storage; standardized interfaces
-
-- ATS + Talent Acquisition – Occy  
-  - Scalable, low-latency APIs and data pipelines improving recruiter workflows and reporting
-
-- PackageX – Vision-powered logistics  
-  - Serverless API integrations with performance-optimized Lambdas and cost-aware design
-
-- Election Management System – Secure, audit‑ready voter & results services (AWS + DevSecOps)  
-  - Platform: API Gateway → Lambda and NestJS on ECS Fargate; Cognito (RBAC), WAF + Shield, CloudFront + S3 for static artifacts; Aurora PostgreSQL (core) + DynamoDB (event/audit) with KMS CMKs  
-  - Data integrity: end‑to‑end encryption (in transit/at rest), S3 Object Lock (immutability), idempotent writes, append‑only audit trail via Streams/Firehose → S3/Glacier  
-  - Messaging & scale: SQS/SNS fan‑out for tallying, notifications, and reconciliation; autoscaling at queue depth and p95 latency targets  
-  - Observability: structured logging with correlation IDs, CloudWatch metrics/alarms, X‑Ray traces across API/Lambda/services  
-  - DevSecOps: CodeCommit → CodeBuild → CodeDeploy/CodePipeline with gated stages; SCA (OWASP Dependency‑Check), SAST (SonarQube), DAST (OWASP ZAP), container/IaC scanning (e.g., Trivy/grype, cfn‑nag); SBOM generation, secrets scanning, policy‑as‑code (OPA/Conftest); findings normalized and aggregated in Security Hub; CloudTrail + Config for audit  
-  - Delivery: blue/green + manual approval for prod, automated rollbacks on health/regression checks
+| Area | What I do |
+|---|---|
+| **Compute** | Lambda, API Gateway, EC2, ECS/Fargate. Picking serverless vs containers per workload, tuning cold starts, autoscaling on queue depth and p95 latency |
+| **Data** | RDS/Aurora PostgreSQL, DynamoDB, ElastiCache Redis, S3, ClickHouse. Access-pattern-first modelling, read/write segregation, caching tiers with stampede control |
+| **Messaging** | Kafka, SQS, SNS, EventBridge, BullMQ. Fan-out, DLQs, idempotent consumers, transactional outbox, Saga orchestration |
+| **Infrastructure as Code** | Terraform, CloudFormation, AWS CDK. Reproducible multi-environment stacks |
+| **Security** | IAM least privilege, Cognito, OAuth 2.0 / JWT, KMS encryption, PostgreSQL Row-Level Security for multi-tenancy, GDPR-aware data handling |
+| **Delivery** | GitHub Actions, GitLab CI, CodeDeploy, Jenkins. Blue/green and canary releases with automated rollback |
+| **Observability** | CloudWatch, X-Ray, Prometheus, Grafana, ELK, Datadog. RED/USE metrics, structured logs, correlation IDs, SLO-driven alerting |
+| **Cost & Reliability** | Right-sizing, moving suitable workloads to Lambda + SQS, Well-Architected reviews |
 
 ---
 
-## 🧭 Architecture Notes
+### 🧭 Reference Architecture I Typically Deliver
 
-- Standardized service blueprint:
-  - API: REST/GraphQL with NestJS Modules, DTOs, class-validator  
-  - Resilience: retries + backoff, idempotency keys, circuit breakers where needed  
-  - Messaging: outbox pattern where persistence consistency matters  
-  - Observability: structured logs, correlation IDs, RED/USE metrics  
-  - Security: least-privileged IAM, token scoping, secret hygiene, encryption
+```mermaid
+flowchart LR
+    C[Web / Mobile Clients] --> CF[CloudFront + WAF]
+    CF --> APIGW[API Gateway]
+    APIGW --> AUTH[Cognito / OAuth2 JWT]
+    APIGW --> SVC[NestJS Services<br/>ECS Fargate]
+    APIGW --> FN[Lambda Functions]
+    SVC --> PG[(Aurora PostgreSQL<br/>+ pgvector)]
+    SVC --> RD[(ElastiCache Redis)]
+    SVC -- outbox --> BUS{{Kafka / SNS / EventBridge}}
+    BUS --> Q[SQS + DLQ]
+    Q --> WK[Async Workers<br/>Lambda / BullMQ]
+    WK --> DDB[(DynamoDB)]
+    WK --> S3[(S3 Data Lake)]
+    S3 --> CH[(ClickHouse Analytics)]
+    SVC & FN & WK -.-> OBS[CloudWatch · X-Ray · Prometheus · Grafana]
+```
 
-- Data patterns I apply:
-  - Read/write segregation for heavy domains  
-  - Caching tiers (Redis) with cache stampede controls  
-  - Async projections for analytics/reporting (ClickHouse/Elasticsearch)
-
----
-
-## 🛠️ Tech Stack
-
-- Languages: Node.js, TypeScript, Python  
-- Frameworks: NestJS, Express, Koa  
-- Databases: PostgreSQL, MySQL, MongoDB, DynamoDB, Redis, ClickHouse  
-- Cloud: AWS Lambda, ECS Fargate, EC2, S3, Cognito, SES, SNS, SQS, VPC, IAM, CloudWatch, X-Ray  
-- DevOps: Docker, CI/CD, GitHub Actions
-
-Badges:
-![AWS](https://img.shields.io/badge/Cloud-AWS-informational?style=flat&logo=amazon-aws&logoColor=white&color=6aa6f8)
-![Lambda](https://img.shields.io/badge/Compute-Lambda-informational?style=flat&logo=aws-lambda&logoColor=white&color=6aa6f8)
-![DynamoDB](https://img.shields.io/badge/Database-DynamoDB-informational?style=flat&logo=amazon-dynamodb&logoColor=white&color=6aa6f8)
-![S3](https://img.shields.io/badge/Storage-S3-informational?style=flat&logo=amazon-s3&logoColor=white&color=6aa6f8)
-![SQS](https://img.shields.io/badge/Queue-SQS-informational?style=flat&logo=amazon-sqs&logoColor=white&color=6aa6f8)
-![SNS](https://img.shields.io/badge/Pub/Sub-SNS-informational?style=flat&logo=amazon-sns&logoColor=white&color=6aa6f8)
-![ECS Fargate](https://img.shields.io/badge/Container-ECS_Fargate-informational?style=flat&logo=amazon-ecs&logoColor=white&color=6aa6f8)
-![Cognito](https://img.shields.io/badge/Auth-Cognito-informational?style=flat&logo=amazon-aws&logoColor=white&color=6aa6f8)
-![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-informational?style=flat&logo=postgresql&logoColor=white&color=6aa6f8)
-![Redis](https://img.shields.io/badge/Cache-Redis-informational?style=flat&logo=redis&logoColor=white&color=6aa6f8)
-![Kafka](https://img.shields.io/badge/Streaming-Kafka-informational?style=flat&logo=apache-kafka&logoColor=white&color=6aa6f8)
-![Docker](https://img.shields.io/badge/DevOps-Docker-informational?style=flat&logo=docker&logoColor=white&color=6aa6f8)
-![NestJS](https://img.shields.io/badge/Framework-NestJS-informational?style=flat&logo=nestjs&logoColor=white&color=6aa6f8)
-![TypeScript](https://img.shields.io/badge/Language-TypeScript-informational?style=flat&logo=typescript&logoColor=white&color=6aa6f8)
+**Principles I hold to:** idempotent writes · retries with backoff and jitter · circuit breakers · outbox for consistency · least-privilege IAM · everything in IaC · observability from day one · design for cost.
 
 ---
 
-## 🗂️ Featured Projects
+### 💼 Experience
 
-- [ChainGPT](https://www.chaingpt.org/) – AI-integrated platform for secure NLP processing  
-- [CNBC Arabia Backend](https://www.cnbcarabia.com/) – Real-time media publishing backend  
-- Secure EHR System – Privacy-first records with audit-ready flows  
-- Election Management System – Secure, scalable voter & results services (AWS + DevSecOps)  
-- ATS + Talent Acquisition – https://occy.com/  
-- PackageX – https://packagex.io/
+**Exagic** · *Senior Backend Developer / Backend Lead* · Jan 2024 – Present · Remote
+- Lead the backend team. I set engineering standards, review architecture and code, and own delivery
+- Architect cloud-native AWS platforms (Lambda, EC2, S3, RDS, DynamoDB, SQS), all provisioned with **Terraform**
+- Build event-driven pipelines on **Kafka + SQS**, tuning PostgreSQL/MongoDB indexes and Redis caching for high-volume workloads
+- Ship RAG-based document search: chunking, embeddings, **pgvector** retrieval and **Cohere** reranking
+- Run Docker CI/CD with blue/green deployments, with observability through Prometheus, Grafana and ELK
 
+**Funavry Technologies** · *Senior Software Engineer / Technical Lead* · Dec 2021 – Apr 2024
+- Owned backend architecture and technical decisions across **6+ client platforms**, leading teams of 4–6
+- Moved monoliths to **event-driven microservices (CQRS + Saga)**, which cut infrastructure cost by **25%**. I also standardised AWS deployments with GitHub Actions
+- Built the API and SDK infrastructure for **[ChainGPT](https://www.chaingpt.org/)** (smart-contract generation, auditing, NFT creation, on-chain analytics)
+- Delivered a **NestJS EHR platform** for a US healthcare client: prescriptions, patient records and multi-provider workflows with audit trails
+- Made the **Kalba Municipality** portal **35% faster** through query optimisation and caching. Also delivered media and e-commerce logistics backends
 
-Tip: Some repositories are private or client-owned. I’m happy to walk through architecture and anonymized code samples upon request.
+**SmartRecruitOnline – [Occy](https://occy.com/)** · *Backend Developer* · Nov 2019 – Dec 2021
+- Built the core API layer for an enterprise ATS used by UK hiring teams, covering sourcing, pipelines and interview scheduling
+- Automated email/SMS, reference checks, background verification and e-signature workflows across PostgreSQL, MongoDB and DynamoDB
 
----
-
-## 🧪 Example Topics I Write/Build About
-
-- End-to-end tracing in serverless with correlation IDs  
-- SQS + Lambda patterns: batching, DLQs, idempotency  
-- Scaling read-heavy APIs with Redis and projection tables  
-- Safe schema evolution and zero-downtime releases  
-- API rate limiting: token bucket vs fixed window vs leaky bucket
-
----
-
-## 🏆 Trophies & Stats
-
-[![trophy](https://github-profile-trophy.vercel.app/?username=aqeelrazagondal&theme=nord&column=7)](https://github.com/ryo-ma/github-profile-trophy)
-
-![Aqeel’s GitHub Stats](https://github-readme-stats.vercel.app/api?username=aqeelrazagondal&show_icons=true&theme=tokyonight)
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=aqeelrazagondal&layout=compact&theme=tokyonight)
+**[PackageX](https://packagex.io/)** · *Node.js Developer* · Mar 2018 – Sep 2019
+- Built serverless integrations on **AWS Lambda + API Gateway** for a logistics platform, tuned for performance
 
 ---
 
-## 🎓 Certifications
+### 🚀 Featured Work
 
-- AWS Lambda & Serverless Architecture Bootcamp – Udemy  
-- Node.js: Complete Guide to Building RESTful APIs – Udemy (Mosh Hamedani)  
-- Elasticsearch Essential Training – Lynda.com
+| Project | What it is | Stack |
+|---|---|---|
+| **RegLens UK** | RegTech platform with **RegBot**, an AI regulatory assistant using hybrid RAG. A DDD rules engine turns legal provisions into nightly validation audits and cut analytical resolution time from **4 days to 4 hours**. Tenants are isolated with PostgreSQL RLS | NestJS · PostgreSQL · pgvector HNSW · Cohere · DDD |
+| **[AuthKit – Cognito Passwordless Kit](https://github.com/aqeelrazagondal/Cognito-Passwordless-Kit)** | Production-grade passwordless auth for AWS (OTP + magic links) | NestJS · AWS CDK · Cognito · Lambda |
+| **[Lambda Cold-Start Analyzer](https://github.com/aqeelrazagondal/lambda-ColdStart-analyzer)** | Multi-account, multi-region platform tracking Lambda cold starts (P50/P90/P99), bundle analysis and alerts via cross-account AssumeRole | TypeScript · CloudWatch Logs Insights · IAM |
+| **[ChainGPT](https://www.chaingpt.org/)** | AI + Web3 API/SDK platform with queued job processing, rate limiting and request tracing | Node.js · AWS · Redis · Queues |
+| **Secure EHR Platform** | Multi-provider healthcare records with RBAC, audit trails and encryption at rest | NestJS · PostgreSQL · AWS KMS |
 
----
-
-## 📮 Contact
-
-- 📍 Northampton, UK  
-- ✉ Email: aqeelraza146@gmail.com
-- 📞 Phone: +44 07918-776326 
-- 🔗 LinkedIn: https://www.linkedin.com/in/aqeel-raza-5b64887b/  
-- 💻 GitHub: https://github.com/aqeelrazagondal
+> Most of my production work is private or client-owned. I'm glad to walk through architecture decisions and anonymised designs on request.
 
 ---
 
-> “Consistency beats talent. Code daily. Learn always.”
+### 🛠️ Tech Stack
+
+**Languages & Frameworks**
+<br/>
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
+<img src="https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white" />
+<img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" />
+<img src="https://img.shields.io/badge/GraphQL-E10098?style=flat-square&logo=graphql&logoColor=white" />
+<img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white" />
+
+**AWS & Infrastructure**
+<br/>
+<img src="https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonwebservices&logoColor=white" />
+<img src="https://img.shields.io/badge/Lambda-FF9900?style=flat-square&logo=awslambda&logoColor=white" />
+<img src="https://img.shields.io/badge/API%20Gateway-FF4F8B?style=flat-square&logo=amazonapigateway&logoColor=white" />
+<img src="https://img.shields.io/badge/ECS%20Fargate-FF9900?style=flat-square&logo=amazonecs&logoColor=white" />
+<img src="https://img.shields.io/badge/DynamoDB-4053D6?style=flat-square&logo=amazondynamodb&logoColor=white" />
+<img src="https://img.shields.io/badge/S3-569A31?style=flat-square&logo=amazons3&logoColor=white" />
+<img src="https://img.shields.io/badge/SQS%20%2F%20SNS-FF4F8B?style=flat-square&logo=amazonsqs&logoColor=white" />
+<img src="https://img.shields.io/badge/Cognito-DD344C?style=flat-square&logo=amazoncognito&logoColor=white" />
+<img src="https://img.shields.io/badge/CloudWatch-FF4F8B?style=flat-square&logo=amazoncloudwatch&logoColor=white" />
+<img src="https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white" />
+<img src="https://img.shields.io/badge/CloudFormation%20%2F%20CDK-FF4F8B?style=flat-square&logo=amazonwebservices&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" />
+
+**Data & Messaging**
+<br/>
+<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/pgvector-336791?style=flat-square&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white" />
+<img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white" />
+<img src="https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white" />
+<img src="https://img.shields.io/badge/ClickHouse-FFCC01?style=flat-square&logo=clickhouse&logoColor=black" />
+<img src="https://img.shields.io/badge/Apache%20Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white" />
+<img src="https://img.shields.io/badge/BullMQ-D82C20?style=flat-square&logo=redis&logoColor=white" />
+
+**Delivery & Observability**
+<br/>
+<img src="https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white" />
+<img src="https://img.shields.io/badge/GitLab%20CI-FC6D26?style=flat-square&logo=gitlab&logoColor=white" />
+<img src="https://img.shields.io/badge/Jenkins-D24939?style=flat-square&logo=jenkins&logoColor=white" />
+<img src="https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white" />
+<img src="https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white" />
+<img src="https://img.shields.io/badge/ELK-005571?style=flat-square&logo=elastic&logoColor=white" />
+<img src="https://img.shields.io/badge/Datadog-632CA6?style=flat-square&logo=datadog&logoColor=white" />
+
+---
+
+### 🎓 Certifications
+
+- **AWS Certified Solutions Architect – Associate (SAA-C03)**: in progress
+- AWS Lambda & Serverless Architecture Bootcamp (Udemy)
+- Node.js: Complete Guide to Building RESTful APIs (Udemy)
+- Elasticsearch Essential Training (Lynda.com)
+- BSc Computer Science, Preston University Islamabad
+
+---
+
+### 🤝 Open To
+
+Senior Backend, Lead Engineer, Solutions Architect and Cloud Architect roles, in the UK or remote.
+Happy to talk about **AWS architecture, event-driven design, platform modernisation and production RAG systems**.
+
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=aqeelrazagondal&show_icons=true&hide_border=true&theme=github_dark&count_private=true" height="160" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=aqeelrazagondal&layout=compact&hide_border=true&theme=github_dark" height="160" />
+</p>
